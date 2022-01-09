@@ -7,7 +7,7 @@ case "$1" in
     EXTRA_PACKAGES=""
     ;;
 "wifietc")
-    EXTRA_PACKAGES="--include=systemd-sysv,vim,less,wpasupplicant,iproute2,iputils-ping,wireless-regdb,kmod,udev,dhcpcd5,dracut"
+    EXTRA_PACKAGES="--include=systemd-sysv,vim,less,wpasupplicant,iproute2,iputils-ping,wireless-regdb,kmod,udev,dhcpcd5,dracut,u-boot-tools"
     ;;
 "full")
     EXTRA_PACKAGES="--include=systemd-sysv,vim,less,wpasupplicant,iproute2,iputils-ping,wireless-regdb,kmod,udev,dhcpcd5,dracut,xfce4,onboard"
