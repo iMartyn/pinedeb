@@ -43,13 +43,17 @@ jobs:
           sudo tar -jcvf ../artifacts/debian-bullseye-arm64.tar.bz2 .
           sudo chmod 644 ../artifacts/debian-bullseye-arm64.tar.bz2
 
+      - name: setup version number
+        run: echo "::set-output name=version::bullseye-$(git rev-parse --short HEAD)"
+        id: version
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ github.sha }}
+          tag_name: ${{ steps.version.outputs.version}}
           release_name: Release ${{ github.ref }}
           body: |
             Automatic tarball of debootstrab
