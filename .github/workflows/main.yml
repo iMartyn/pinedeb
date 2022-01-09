@@ -31,3 +31,35 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # optionally push to the Docker Hub (docker.io)
           # docker_io_token: ${{ secrets.DOCKER_IO_ACCESS_TOKEN }}  # see https://hub.docker.com/settings/security
+
+      - name: tarball some of the outputs!
+        run: |
+          mkdir artifacts
+          mkdir target
+          docker run -v ${PWD}/target:/target ${REPO_LC} -- min
+          cd target
+          tar -jcvf ../artifacts/debian-bullseye-arm64.tar.bz2 .
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Automatic tarball of debootstrab
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: ../artifacts/debian-bullseye-arm64.tar.bz2
+          asset_name: debian-bullseye-arm64.tar.bz2
+          asset_content_type: application/x-tar
