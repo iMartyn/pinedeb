@@ -32,17 +32,6 @@ jobs:
           # optionally push to the Docker Hub (docker.io)
           # docker_io_token: ${{ secrets.DOCKER_IO_ACCESS_TOKEN }}  # see https://hub.docker.com/settings/security
 
-      - name: tarball some of the outputs!
-        run: |
-          sudo apt update
-          sudo apt install -y debootstrap binfmt-support qemu-user-static
-          mkdir artifacts
-          mkdir target
-          docker run -v ${PWD}/target:/target ${REPO_LC} -- min
-          cd target
-          sudo tar -jcvf ../artifacts/debian-bullseye-arm64.tar.bz2 .
-          sudo chmod 644 ../artifacts/debian-bullseye-arm64.tar.bz2
-
       - name: setup version number
         run: echo "::set-output name=version::bullseye-$(git rev-parse --short HEAD)"
         id: version
@@ -56,12 +45,26 @@ jobs:
           tag_name: ${{ steps.version.outputs.version}}
           release_name: Release ${{ github.ref }}
           body: |
-            Automatic tarball of debootstrab
+            Automatic tarballs of debootstrab
           draft: false
           prerelease: false
 
-      - name: Upload Release Asset
-        id: upload-release-asset 
+      - name: allow arm64 execution
+        run: |
+          sudo apt update
+          sudo apt install -y binfmt-support qemu-user-static
+
+      - name: tarball min
+        run: |
+          mkdir -p artifacts
+          mkdir -p target
+          docker run -v ${PWD}/target:/target ${REPO_LC} -- min
+          cd target
+          sudo tar -jcvf ../artifacts/debian-bullseye-arm64.tar.bz2 .
+          sudo chmod 644 ../artifacts/debian-bullseye-arm64.tar.bz2
+
+      - name: Upload Release Asset min
+        id: upload-release-asset-min 
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -69,4 +72,25 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
           asset_path: artifacts/debian-bullseye-arm64.tar.bz2
           asset_name: debian-bullseye-arm64.tar.bz2
+          asset_content_type: application/x-tar
+
+      - name: tarball wifi
+        run: |
+          mkdir -p artifacts
+          mkdir -p target
+          sudo rm -rf target/*
+          docker run -v ${PWD}/target:/target ${REPO_LC} -- wifietc
+          cd target
+          sudo tar -jcvf ../artifacts/debian-bullseye-arm64-withwifi.tar.bz2 .
+          sudo chmod 644 ../artifacts/debian-bullseye-arm64-withwifi.tar.bz2
+
+      - name: Upload Release Asset wifi
+        id: upload-release-asset-wifi 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: artifacts/debian-bullseye-arm64-withwifi.tar.bz2
+          asset_name: debian-bullseye-arm64-withwifi.tar.bz2
           asset_content_type: application/x-tar
