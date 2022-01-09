@@ -34,8 +34,8 @@ jobs:
 
       - name: tarball some of the outputs!
         run: |
-          apt update
-          apt install -y debootstrap binfmt-support qemu-user-static
+          sudo apt update
+          sudo apt install -y debootstrap binfmt-support qemu-user-static
           mkdir artifacts
           mkdir target
           docker run -v ${PWD}/target:/target ${REPO_LC} -- min
