@@ -40,7 +40,8 @@ jobs:
           mkdir target
           docker run -v ${PWD}/target:/target ${REPO_LC} -- min
           cd target
-          tar -jcvf ../artifacts/debian-bullseye-arm64.tar.bz2 .
+          sudo tar -jcvf ../artifacts/debian-bullseye-arm64.tar.bz2 .
+          sudo chmod 644 ../artifacts/debian-bullseye-arm64.tar.bz2
 
       - name: Create Release
         id: create_release
