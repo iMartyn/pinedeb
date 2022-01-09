@@ -94,3 +94,24 @@ jobs:
           asset_path: artifacts/debian-bullseye-arm64-withwifi.tar.bz2
           asset_name: debian-bullseye-arm64-withwifi.tar.bz2
           asset_content_type: application/x-tar
+
+      - name: tarball full
+        run: |
+          mkdir -p artifacts
+          mkdir -p target
+          sudo rm -rf target/*
+          docker run -v ${PWD}/target:/target ${REPO_LC} -- full
+          cd target
+          sudo tar -jcvf ../artifacts/debian-bullseye-arm64-full.tar.bz2 .
+          sudo chmod 644 ../artifacts/debian-bullseye-arm64-full.tar.bz2
+
+      - name: Upload Release Asset wifi
+        id: upload-release-asset-wifi 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: artifacts/debian-bullseye-arm64-full.tar.bz2
+          asset_name: debian-bullseye-arm64-full.tar.bz2
+          asset_content_type: application/x-tar
