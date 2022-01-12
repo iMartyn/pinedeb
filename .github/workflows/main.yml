@@ -32,9 +32,33 @@ jobs:
           # optionally push to the Docker Hub (docker.io)
           # docker_io_token: ${{ secrets.DOCKER_IO_ACCESS_TOKEN }}  # see https://hub.docker.com/settings/security
 
-      - name: setup version number
-        run: echo "::set-output name=version::bullseye-$(git rev-parse --short HEAD)"
-        id: version
+      - id: findver
+        continue-on-error: true
+        uses: zwaldowski/match-label-action@v1
+        with:
+          allowed: major,minor,patch
+
+      - id: patchbydefault
+        run: |
+          FINALBUMP="${OUTPUTBUMP:-patch}"
+          echo -n "FINALBUMP=${FINALBUMP,,}" >>${GITHUB_ENV}"
+        env:
+          OUTPUTBUMP: ${{ steps.findver.outputs.version }}
+
+      - id: bumpver
+        uses: zwaldowski/semver-release-action@v1
+        continue-on-error: true
+        with:
+          bump: ${{ env.FINALBUMP }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          dry_run: true
+          
+      - id: finalver
+        run: |
+          FINALVER="${OUTPUTVER:-0.0.1}"
+          echo -n "FINALVER=${FINALVER,,}" >>${GITHUB_ENV}"
+        env:
+          OUTPUTVER: ${{ steps.bumpver.outputs.version }}
 
       - name: Create Release
         id: create_release
@@ -42,7 +66,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ steps.version.outputs.version}}
+          tag_name: ${{ env.FINALVER }}
           release_name: Release ${{ github.ref }}
           body: |
             Automatic tarballs of debootstrab

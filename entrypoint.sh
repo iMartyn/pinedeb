@@ -10,7 +10,8 @@ case "$1" in
     EXTRA_PACKAGES="--include=systemd-sysv,vim,less,wpasupplicant,iproute2,iputils-ping,wireless-regdb,kmod,udev,dhcpcd5,dracut,u-boot-tools"
     ;;
 "full")
-    EXTRA_PACKAGES="--include=systemd-sysv,vim,less,wpasupplicant,iproute2,iputils-ping,wireless-regdb,kmod,udev,dhcpcd5,dracut,xfce4,onboard"
+    # warning: full is identical to wifietc for now
+    EXTRA_PACKAGES="--include=systemd-sysv,vim,less,wpasupplicant,iproute2,iputils-ping,wireless-regdb,kmod,udev,dhcpcd5,dracut,u-boot-tools"
     ;;
 *)
     echo 'Error: first arg to docker run must be `min`, `wifietc` or `full`'
