@@ -41,7 +41,7 @@ jobs:
       - id: patchbydefault
         run: |
           FINALBUMP="${OUTPUTBUMP:-patch}"
-          echo -n "FINALBUMP=${FINALBUMP,,}" >>${GITHUB_ENV}"
+          echo -n "FINALBUMP=${FINALBUMP,,}" >>${GITHUB_ENV}
         env:
           OUTPUTBUMP: ${{ steps.findver.outputs.version }}
 
@@ -56,7 +56,7 @@ jobs:
       - id: finalver
         run: |
           FINALVER="${OUTPUTVER:-0.0.1}"
-          echo -n "FINALVER=${FINALVER,,}" >>${GITHUB_ENV}"
+          echo -n "FINALVER=${FINALVER,,}" >>${GITHUB_ENV}
         env:
           OUTPUTVER: ${{ steps.bumpver.outputs.version }}
 
